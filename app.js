@@ -1,11 +1,12 @@
-const http = require("http");
+require("dotenv").config();
+const { PORT = 3001, NAME } = process.env;
+const express = require("express");
+const router = require('./routes/index')
 
-//req - обект запроса, res- объект ответа
-const server = http.createServer((req, res) => {
-  res.writeHead(200, {
-      'Content-Type': 'text/html; charset=utf8'
-  });
-  res.end('<h1>Привет, мир!</h1>', 'utf8');
+const app = express();
+
+app.use('/', router);
+
+app.listen(PORT, () => {
+  console.log(`App listening on port ${PORT}`);
 });
-
-server.listen(3000);
