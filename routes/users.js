@@ -8,18 +8,13 @@ const {
   getUserByID,
 } = require("../controllers/users");
 
-
 //создаём пользователя
-router.post("/", doesUserExist);
-router.post("/", createUser);
+router.post("/", doesUserExist, createUser);
 
 //возвращаем всех пользователя
 router.get("/", getUsers);
 
-// возвращает пользователя по id
-router.get("/:userId", doesUserIdExist);
-router.get("/:userId", getUserByID);
-
-const User = require('../models/user');
+// возвращает пользователя по идентификатору
+router.get("/:userId", doesUserIdExist, getUserByID);
 
 module.exports = router;

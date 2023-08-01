@@ -1,17 +1,9 @@
 const router = require('express').Router();
 const userRouters = require('./users');
-
-router.get('/', (req, res) => {
-  res.send(
-        `<html>
-        <body>
-            <p>Ответ на сигнал из далёкого космоса111</p>
-        </body>
-        </html>`
-    );
-});
+const cardRouters = require('./cards');
 
 router.use('/users', userRouters);
+router.use('/cards', cardRouters);
 
 
 module.exports = router;

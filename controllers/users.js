@@ -17,10 +17,7 @@ const doesUserExist = (req, res, next) => {
   User.findOne({ name: name })
     .then((user) => {
       if (user) {
-        throw new BadRequestError(
-          `Пользователь с именем (${name}) - уже существует`
-        );
-        return;
+        throw new BadRequestError(`Пользователь уже существует`);
       }
       next();
     })
@@ -33,36 +30,20 @@ const doesUserIdExist = (req, res, next) => {
 
   User.findById(userId)
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError(
-          `Пользователь с id (${userId}) - не существует`
-        );
+      if (user) {
+        next();
         return;
       }
-      next();
+      throw new NotFoundError(`Пользователь не найдена`);
     })
-    .catch((err) => {
-      if (err.name === "CastError") {
-        res
-          .status(NOT_FOUND)
-          .send({ message: `Пользователь с id (${userId}) - не существует` });
-        return;
-      }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
-    });
+    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
 };
 
-/**
- *
-Работа с документами:
-  создать (create),
-  прочитать (read),
-*/
-
+//-------------------
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: "Произошла ошибка" }));
+    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
 };
 
 const createUser = (req, res, next) => {
@@ -70,7 +51,7 @@ const createUser = (req, res, next) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.status(OK).send({ data: user }))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: "Произошла ошибка" }));
+    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
 };
 
 const getUserByID = (req, res, next) => {
