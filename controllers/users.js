@@ -51,7 +51,13 @@ const createUser = (req, res, next) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.status(OK).send({ data: user }))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(BAD_REQUEST).send({ message: err.message });
+        return;
+      }
+      res.status(DEFAULT_ERROR).send({ message: err.message });
+    });
 };
 
 const getUserByID = (req, res, next) => {
@@ -61,7 +67,27 @@ const getUserByID = (req, res, next) => {
 };
 
 const updateUserProfile = (req, res, next) => {
-  const { userId } = req.params;
+  const { name, about } = req.body;
+  const { _id } = req.user;
+
+  User.findByIdAndUpdate(_id, { name, about })
+    .then((user) => res.status(OK).send({ data: user }))
+    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+};
+
+const updateUserAvatar = (req, res, next) => {
+  const { avatar } = req.body;
+  const { _id } = req.user;
+
+  User.findByIdAndUpdate(_id, { avatar })
+    .then((user) => res.status(OK).send({ data: user }))
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(BAD_REQUEST).send({ message: err.message });
+        return;
+      }
+      res.status(DEFAULT_ERROR).send({ message: err.message });
+    });
 };
 
 module.exports = {
@@ -71,4 +97,5 @@ module.exports = {
   createUser,
   getUserByID,
   updateUserProfile,
+  updateUserAvatar,
 };

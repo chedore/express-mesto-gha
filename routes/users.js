@@ -7,6 +7,7 @@ const {
   createUser,
   getUserByID,
   updateUserProfile,
+  updateUserAvatar
 } = require("../controllers/users");
 
 //создаём пользователя
@@ -20,5 +21,8 @@ router.get("/:userId", doesUserIdExist, getUserByID);
 
 // обновляет профиль
 router.patch("/me", updateUserProfile);
+
+// обновляет аватар
+router.patch("/me/avatar", updateUserAvatar);
 
 module.exports = router;

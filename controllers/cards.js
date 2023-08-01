@@ -19,9 +19,9 @@ const doesCardIdExist = (req, res, next) => {
   Card.findById(cardId)
     .then((card) => {
       if (card) {
-        if (card.owner.toString() !== _id) {
-          throw new BadRequestError(`Нельзя удалить чужую карточку`);
-        }
+        // if (card.owner.toString() !== _id) {
+        //   throw new BadRequestError(`Нельзя удалить чужую карточку`);
+        // }
         next();
         return;
       }
@@ -62,10 +62,30 @@ const deleteCardByID = (req, res, next) => {
     .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
 };
 
+const putCardLike = (req, res, next) => {
+  const { cardId } = req.params;
+  const { _id } = req.user;
+
+  Card.findByIdAndUpdate(cardId,  { $addToSet: { likes: _id } })
+    .then((card) => res.status(OK).send({ data: card }))
+    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+};
+
+const deleteCardLike = (req, res, next) => {
+  const { cardId } = req.params;
+  const { _id } = req.user;
+
+  Card.findByIdAndUpdate(cardId,  { $pull: { likes: _id } })
+    .then((card) => res.status(OK).send({ data: card }))
+    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+};
+
 module.exports = {
   doesCardIdExist,
 
   createCard,
   getCards,
   deleteCardByID,
+  putCardLike,
+  deleteCardLike,
 };
