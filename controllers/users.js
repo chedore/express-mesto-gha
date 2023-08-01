@@ -56,7 +56,12 @@ const createUser = (req, res, next) => {
 
 const getUserByID = (req, res, next) => {
   const { userId } = req.params;
+
   User.findById(userId).then((user) => res.status(OK).send({ data: user }));
+};
+
+const updateUserProfile = (req, res, next) => {
+  const { userId } = req.params;
 };
 
 module.exports = {
@@ -65,4 +70,5 @@ module.exports = {
   getUsers,
   createUser,
   getUserByID,
+  updateUserProfile,
 };
