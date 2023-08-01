@@ -2,16 +2,23 @@ const router = require("express").Router();
 
 const {
   doesUserExist,
+  doesUserIdExist,
   getUsers,
   createUser,
-  updateUserProfile,
+  getUserByID,
 } = require("../controllers/users");
 
-// router.patch("/users/:id", updateUserProfile);
+
+//создаём пользователя
 router.post("/", doesUserExist);
 router.post("/", createUser);
-// router.get("/users", getUsers);
 
+//возвращаем всех пользователя
+router.get("/", getUsers);
+
+// возвращает пользователя по id
+router.get("/:userId", doesUserIdExist);
+router.get("/:userId", getUserByID);
 
 const User = require('../models/user');
 
