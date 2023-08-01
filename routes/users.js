@@ -6,6 +6,8 @@ const {
   getUsers,
   createUser,
   getUserByID,
+  updateUserProfile,
+  updateUserAvatar
 } = require("../controllers/users");
 
 //создаём пользователя
@@ -16,5 +18,11 @@ router.get("/", getUsers);
 
 // возвращает пользователя по идентификатору
 router.get("/:userId", doesUserIdExist, getUserByID);
+
+// обновляет профиль
+router.patch("/me", updateUserProfile);
+
+// обновляет аватар
+router.patch("/me/avatar", updateUserAvatar);
 
 module.exports = router;

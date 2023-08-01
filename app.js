@@ -1,6 +1,6 @@
 require("dotenv").config();
 const process = require('process');
-const { PORT = 3001, NAME } = process.env;
+const { PORT = 3000, DB_HOST } = process.env;
 const express = require("express");
 const mongoose = require("mongoose");
 
@@ -13,7 +13,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/mydb", {});
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '5d8b8592978f8bd833ca8133' // вставьте сюда _id созданного в предыдущем пункте пользователя
+    _id: '64c9607812975d540dea75d2' // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
 
   next();
