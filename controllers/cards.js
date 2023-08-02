@@ -16,15 +16,9 @@ const doesCardIdExist = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findById(cardId)
-    .then((card) => {
-      if (card) {
-        // if (card.owner.toString() !== _id) {
-        //   throw new BadRequestError(`Нельзя удалить чужую карточку`);
-        // }
-        next();
-        return;
-      }
-      throw new NotFoundError('Карточка не найдена');
+    .orFail(new NotFoundError('Карточка не найдена'))
+    .then(() => {
+      next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
