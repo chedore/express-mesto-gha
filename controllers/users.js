@@ -83,7 +83,7 @@ const updateUserProfile = (req, res) => {
   const { name, about } = req.body;
   const { _id } = req.user;
 
-  User.findByIdAndUpdate(_id, { name, about })
+  User.findByIdAndUpdate(_id, { name, about }, {new: true} )
     .then((user) => res.status(OK).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -99,7 +99,7 @@ const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
   const { _id } = req.user;
 
-  User.findByIdAndUpdate(_id, { avatar })
+  User.findByIdAndUpdate(_id, { avatar }, {new: true})
     .then((user) => res.status(OK).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
