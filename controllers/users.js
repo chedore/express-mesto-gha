@@ -14,12 +14,9 @@ const doesUserIdExist = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .then((user) => {
-      if (user) {
-        next();
-        return;
-      }
-      throw new NotFoundError('Пользователь не найдена');
+    .orFail(new NotFoundError('Пользователь не найден'))
+    .then(() => {
+      next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -35,12 +32,9 @@ const doesMeExist = (req, res, next) => {
   const { _id } = req.user;
 
   User.findById(_id)
-    .then((user) => {
-      if (user) {
-        next();
-        return;
-      }
-      throw new NotFoundError('Пользователь не найдена');
+    .orFail(new NotFoundError('Пользователь не найден'))
+    .then(() => {
+      next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
