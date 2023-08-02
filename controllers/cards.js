@@ -70,7 +70,7 @@ const putCardLike = (req, res) => {
   const { cardId } = req.params;
   const { _id } = req.user;
 
-  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true })
+  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true, runValidators: true })
     .then((card) => res.status(OK).send({ data: card }))
     .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
 };
@@ -80,7 +80,7 @@ const deleteCardLike = (req, res) => {
   const { cardId } = req.params;
   const { _id } = req.user;
 
-  Card.findByIdAndUpdate(cardId, { $pull: { likes: _id } }, { new: true })
+  Card.findByIdAndUpdate(cardId, { $pull: { likes: _id } }, { new: true, runValidators: true })
     .then((card) => res.status(OK).send({ data: card }))
     .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
 };
