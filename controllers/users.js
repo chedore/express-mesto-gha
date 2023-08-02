@@ -3,6 +3,7 @@ const {
   OK,
   CREATED,
   BAD_REQUEST,
+  NOT_FOUND,
   DEFAULT_ERROR,
 
   NotFoundError,
@@ -21,6 +22,10 @@ const doesUserIdExist = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: err.message });
+        return;
+      }
+      if (err.name === 'NotFound') {
+        res.status(NOT_FOUND).send({ message: err.message });
         return;
       }
       res.status(DEFAULT_ERROR).send({ message: err.message });

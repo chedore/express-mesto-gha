@@ -10,6 +10,7 @@ const DEFAULT_ERROR = 500; // ошибка по-умолчанию.
 class NotFoundError extends Error {
   constructor(message) {
     super(message);
+    this.name = 'NotFound';
     this.statusCode = NOT_FOUND;
   }
 }
