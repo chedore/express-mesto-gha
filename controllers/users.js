@@ -1,3 +1,6 @@
+/* eslint-disable object-curly-newline */
+/* eslint-disable import/no-extraneous-dependencies */
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const {
   OK,
@@ -58,10 +61,11 @@ const getUsers = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
-    .then((user) => res.status(CREATED).send({ data: user }))
+  const { name, about, avatar, email, password } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
+    .then((user) => res.status(CREATED).send({ _id: user._id, email: user.email }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: err.message });
@@ -83,7 +87,11 @@ const updateUserProfile = (req, res) => {
   const { name, about } = req.body;
   const { _id } = req.user;
 
-  User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(
+    _id,
+    { name, about },
+    { new: true, runValidators: true },
+  )
     .then((user) => res.status(OK).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
