@@ -4,14 +4,10 @@ const {
   doesUserIdExist,
   doesMeExist,
   getUsers,
-  createUser,
   getUserByID,
   updateUserProfile,
   updateUserAvatar,
 } = require('../controllers/users');
-
-// создаём пользователя
-router.post('/', createUser);
 
 // возвращаем всех пользователя
 router.get('/', getUsers);

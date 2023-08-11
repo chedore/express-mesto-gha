@@ -22,6 +22,7 @@ class BadRequestError extends Error {
     this.statusCode = BAD_REQUEST;
   }
 }
+
 class BadUnAutorized extends Error {
   constructor(message) {
     super(message);
