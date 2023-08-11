@@ -1,11 +1,15 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable import/no-extraneous-dependencies */
+
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+// eslint-disable-next-line import/order
+const jwt = require('jsonwebtoken');
 const {
   OK,
   CREATED,
   BAD_REQUEST,
+  UNAUTHORIZED,
   NOT_FOUND,
   DEFAULT_ERROR,
 
@@ -118,6 +122,19 @@ const updateUserAvatar = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.status(OK).send({ token });
+    })
+    .catch((err) => {
+      res.status(UNAUTHORIZED).send({ message: err.message });
+    });
+};
+
 module.exports = {
   doesUserIdExist,
   doesMeExist,
@@ -127,4 +144,5 @@ module.exports = {
   getUserByID,
   updateUserProfile,
   updateUserAvatar,
+  login,
 };

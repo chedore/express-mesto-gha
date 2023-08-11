@@ -2,6 +2,9 @@ const router = require('express').Router();
 const userRouters = require('./users');
 const cardRouters = require('./cards');
 const { NOT_FOUND } = require('../errors/index');
+const { login } = require('../controllers/users');
+
+router.post('/sigin', login);
 
 router.use('/users', userRouters);
 router.use('/cards', cardRouters);
