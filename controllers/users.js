@@ -8,12 +8,10 @@ const jwt = require('jsonwebtoken');
 const {
   OK,
   CREATED,
-  BAD_REQUEST,
-  UNAUTHORIZED,
-  NOT_FOUND,
-  DEFAULT_ERROR,
 
   NotFoundError,
+  ValidateError,
+  BadUnAutorized,
 } = require('../errors/index');
 
 /* ----мидлвэр---- */
@@ -22,20 +20,15 @@ const doesUserIdExist = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .orFail(new NotFoundError('Пользователь не найден'))
+    .orFail(next(new NotFoundError('Пользователь не найден')))
     .then(() => {
       next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      if (err.name === 'NotFound') {
-        res.status(NOT_FOUND).send({ message: err.message });
-        return;
-      }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
@@ -44,27 +37,26 @@ const doesMeExist = (req, res, next) => {
   const { _id } = req.user;
 
   User.findById(_id)
-    .orFail(new NotFoundError('Пользователь не найден'))
+    .orFail(next(new NotFoundError('Пользователь не найден')))
     .then(() => {
       next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
 //-------------------
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+    .catch((err) => next(err.message));
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt
     .hash(password, 10)
@@ -72,10 +64,9 @@ const createUser = (req, res) => {
     .then((user) => res.status(CREATED).send({ _id: user._id, email: user.email }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
@@ -86,15 +77,15 @@ const getUserByID = (req, res) => {
   User.findById(userId).then((user) => res.status(OK).send({ data: user }));
 };
 
-const getUserProfile = (req, res) => {
+const getUserProfile = (req, res, next) => {
   const { _id } = req.user;
 
   User.findById(_id)
     .then((user) => res.status(OK).send(user))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+    .catch((err) => next(err.message));
 };
 
-const updateUserProfile = (req, res) => {
+const updateUserProfile = (req, res, next) => {
   // перед updateUserProfile проверяется мидлвэр doesMeExist
   const { name, about } = req.body;
   const { _id } = req.user;
@@ -107,14 +98,13 @@ const updateUserProfile = (req, res) => {
     .then((user) => res.status(OK).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   // перед updateUserAvatar проверяется мидлвэр doesMeExist
   const { avatar } = req.body;
   const { _id } = req.user;
@@ -123,14 +113,13 @@ const updateUserAvatar = (req, res) => {
     .then((user) => res.status(OK).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findUserByCredentials(email, password)
@@ -139,7 +128,7 @@ const login = (req, res) => {
       res.status(OK).send({ token });
     })
     .catch((err) => {
-      res.status(UNAUTHORIZED).send({ message: err.message });
+      next(new BadUnAutorized(err.message));
     });
 };
 

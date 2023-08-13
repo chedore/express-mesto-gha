@@ -38,6 +38,13 @@ class ForbbidenError extends Error {
   }
 }
 
+class ValidateError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = BAD_REQUEST;
+  }
+}
+
 module.exports = {
   OK,
   CREATED,
@@ -51,4 +58,5 @@ module.exports = {
   BadRequestError,
   BadUnAutorized,
   ForbbidenError,
+  ValidateError,
 };
