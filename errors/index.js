@@ -7,6 +7,7 @@ const BAD_REQUEST = 400; // переданы некорректные данны
 const UNAUTHORIZED = 401;
 const FORBIDDEN = 403;
 const NOT_FOUND = 404; // карточка или пользователь не найден.
+const CONFLICT = 409; // при регистрации указан email, который уже существует на сервере
 const DEFAULT_ERROR = 500; // ошибка по-умолчанию.
 
 class NotFoundError extends Error {
@@ -53,6 +54,7 @@ module.exports = {
   FORBIDDEN,
   NOT_FOUND,
   DEFAULT_ERROR,
+  CONFLICT,
 
   NotFoundError,
   BadRequestError,

@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const {
   OK,
   CREATED,
+  CONFLICT,
 
   NotFoundError,
   ValidateError,
@@ -65,6 +66,8 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidateError(err.message));
+      } else if (err.code === 11000) {
+        res.status(CONFLICT).send({ message: 'Данный email уже существует' });
       }
       next(err.message);
     });
