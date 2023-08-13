@@ -86,6 +86,14 @@ const getUserByID = (req, res) => {
   User.findById(userId).then((user) => res.status(OK).send({ data: user }));
 };
 
+const getUserProfile = (req, res) => {
+  const { _id } = req.user;
+
+  User.findById(_id)
+    .then((user) => res.status(OK).send(user))
+    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+};
+
 const updateUserProfile = (req, res) => {
   // перед updateUserProfile проверяется мидлвэр doesMeExist
   const { name, about } = req.body;
@@ -142,6 +150,7 @@ module.exports = {
   getUsers,
   createUser,
   getUserByID,
+  getUserProfile,
   updateUserProfile,
   updateUserAvatar,
   login,

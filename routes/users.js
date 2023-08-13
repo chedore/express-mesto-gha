@@ -5,6 +5,7 @@ const {
   doesMeExist,
   getUsers,
   getUserByID,
+  getUserProfile,
   updateUserProfile,
   updateUserAvatar,
 } = require('../controllers/users');
@@ -12,11 +13,13 @@ const {
 // возвращаем всех пользователя
 router.get('/', getUsers);
 
-// возвращает пользователя по идентификатору
-router.get('/:userId', doesUserIdExist, getUserByID);
-
+// возвращаем информацию о профиль
+router.get('/me', doesMeExist, getUserProfile);
 // обновляет профиль
 router.patch('/me', doesMeExist, updateUserProfile);
+
+// возвращает пользователя по идентификатору
+router.get('/:userId', doesUserIdExist, getUserByID);
 
 // обновляет аватар
 router.patch('/me/avatar', doesMeExist, updateUserAvatar);

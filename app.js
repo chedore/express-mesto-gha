@@ -14,13 +14,6 @@ app.use(helmet());
 
 mongoose.connect('mongodb://127.0.0.1:27017/mydb', {});
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64ca459a8b974fbe4962097d',
-  };
-
-  next();
-});
 app.use('/', router);
 
 process.on('uncaughtException', (err, origin) => {
