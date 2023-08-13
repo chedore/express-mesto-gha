@@ -7,6 +7,7 @@ const {
   DEFAULT_ERROR,
 
   NotFoundError,
+  ForbbidenError,
 } = require('../errors/index');
 
 /* ----мидлвэр---- */
@@ -56,12 +57,19 @@ const getCards = (req, res) => {
     .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
 };
 
-const deleteCardByID = (req, res) => {
+const deleteCardByID = (req, res, next) => {
   // перед deleteCardByID проверяется мидлвэр doesCardIdExist
   const { cardId } = req.params;
+  const { _id } = req.user;
 
   Card.findByIdAndRemove(cardId)
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (card.owner.toString() === _id) {
+        card.deleteOne(card)
+          .then(() => res.send({ data: card }))
+          .catch(next);
+      } else throw new ForbbidenError('Чужую карточку нельзя удалить');
+    })
     .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
 };
 

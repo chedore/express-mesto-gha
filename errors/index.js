@@ -5,6 +5,7 @@ const CREATED = 201;
 // eslint-disable-next-line max-len
 const BAD_REQUEST = 400; // переданы некорректные данные в методы создания карточки, пользователя, обновления аватара пользователя или профиля;
 const UNAUTHORIZED = 401;
+const FORBIDDEN = 403;
 const NOT_FOUND = 404; // карточка или пользователь не найден.
 const DEFAULT_ERROR = 500; // ошибка по-умолчанию.
 
@@ -30,15 +31,24 @@ class BadUnAutorized extends Error {
   }
 }
 
+class ForbbidenError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = FORBIDDEN;
+  }
+}
+
 module.exports = {
   OK,
   CREATED,
   BAD_REQUEST,
   UNAUTHORIZED,
+  FORBIDDEN,
   NOT_FOUND,
   DEFAULT_ERROR,
 
   NotFoundError,
   BadRequestError,
   BadUnAutorized,
+  ForbbidenError,
 };
