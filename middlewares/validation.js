@@ -48,7 +48,8 @@ const validateLogin = (req, res, next) => {
   const { error } = validation;
   if (!error) {
     next();
-  } else { next(new BadUnAutorized('Неправильные почта или пароль')); }
+  //} else { next(new BadUnAutorized('Неправильные почта или пароль')); }
+  } else { res.status(400).send({ message: 'Неправильные почта или пароль' }); }
 };
 
 const validateUserId = celebrate({
