@@ -50,10 +50,11 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     .orFail(() => new BadUnAutorized('Неправильные почта или пароль'))
     .then((user) => bcrypt.compare(password, user.password)
       .then((matched) => {
-        if (matched) {
-          return user;
+        if (!matched) {
+          return Promise.reject(new BadUnAutorized('Неправильные почта или пароль'));
         }
-        // throw new BadUnAutorized('Неправильные почта или пароль');
+        return user;
       }));
 };
+
 module.exports = mongoose.model('user', userSchema);

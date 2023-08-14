@@ -30,7 +30,7 @@ const doesUserIdExist = (req, res, next) => {
         next(new ValidateError(err.message));
         return;
       }
-      next(err.message);
+      next(err);
     });
 };
 
@@ -48,7 +48,7 @@ const doesMeExist = (req, res, next) => {
         next(new ValidateError(err.message));
         return;
       }
-      next(err.message);
+      next(err);
     });
 };
 
@@ -56,7 +56,7 @@ const doesMeExist = (req, res, next) => {
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
-    .catch((err) => next(err.message));
+    .catch((err) => next(err));
 };
 
 const createUser = (req, res, next) => {
@@ -74,7 +74,7 @@ const createUser = (req, res, next) => {
         res.status(CONFLICT).send({ message: 'Данный email уже существует' });
         return;
       }
-      next(err.message);
+      next(err);
     });
 };
 
@@ -90,7 +90,7 @@ const getUserProfile = (req, res, next) => {
 
   User.findById(_id)
     .then((user) => res.status(OK).send(user))
-    .catch((err) => next(err.message));
+    .catch((err) => next(err));
 };
 
 const updateUserProfile = (req, res, next) => {
@@ -109,7 +109,7 @@ const updateUserProfile = (req, res, next) => {
         next(new ValidateError(err.message));
         return;
       }
-      next(err.message);
+      next(err);
     });
 };
 
@@ -125,43 +125,22 @@ const updateUserAvatar = (req, res, next) => {
         next(new ValidateError(err.message));
         return;
       }
-      next(err.message);
+      next(err);
     });
 };
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  
-
-  // User.findUserByCredentials(email, password)
-  //   .then((user) => {
-  //     const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-  //     res.cookie('jwt', token, { httpOnly: true, secure: true });
-  //     res.status(OK).send({ token });
-  //   })
-  //   .catch(next);
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.status(OK).send({ token });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
-
-// const login = (req, res, next) => {
-//   const { email, password } = req.body;
-//   User.findOne({ email })
-//     .select('+password')
-//     // .orFail(() => new BadUnAutorized('Пользователь не найден'))
-//     .then((user) => {
-//       bcrypt.compare(password, user.password)
-//         .then((matched) => {
-//           if (matched) {
-//             const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-//             res.cookie('jwt', token, { httpOnly: true, secure: true });
-//             res.status(OK).send({ token });
-//           } else {
-//             throw new BadUnAutorized('Пользователь не найден');
-//           }
-//         });
-//     })
-//     .catch(next);
-// };
 
 module.exports = {
   doesUserIdExist,
