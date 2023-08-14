@@ -21,7 +21,7 @@ const doesUserIdExist = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .orFail(next(new NotFoundError('Пользователь не найден')))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then(() => {
       next();
     })
@@ -39,7 +39,7 @@ const doesMeExist = (req, res, next) => {
   const { _id } = req.user;
 
   User.findById(_id)
-    .orFail(next(new NotFoundError('Пользователь не найден')))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then(() => {
       next();
     })
@@ -87,6 +87,7 @@ const getUserByID = (req, res) => {
 
 const getUserProfile = (req, res, next) => {
   const { _id } = req.user;
+  console.log(_id);
 
   User.findById(_id)
     .then((user) => res.status(OK).send(user))

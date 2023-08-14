@@ -15,7 +15,7 @@ const doesCardIdExist = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findById(cardId)
-    .orFail(next(new NotFoundError('Карточка не найдена')))
+    .orFail(new NotFoundError('Карточка не найден'))
     .then(() => {
       next();
     })
