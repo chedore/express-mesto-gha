@@ -15,11 +15,7 @@ const cardSchema = new mongoose.Schema({
     // default:
     //   'https://pictures.s3.yandex.net/frontend-developer/cards-compressed/arkhyz.jpg',
     validate: {
-      validator: (v) => validator.isURL(v, {
-        protocols: ['http', 'https'],
-        require_tld: true,
-        require_protocol: true,
-      }),
+      validator: (v) => validator.isURL(v),
       message: 'Должен быть действительный URL',
     },
   },

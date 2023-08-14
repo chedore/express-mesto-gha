@@ -2,40 +2,33 @@ const Card = require('../models/card');
 const {
   OK,
   CREATED,
-  BAD_REQUEST,
-  NOT_FOUND,
-  DEFAULT_ERROR,
 
   NotFoundError,
+  ForbbidenError,
+  ValidateError,
 } = require('../errors/index');
 
 /* ----мидлвэр---- */
 
 // Проверим, существует ли карточка по идентификатору:
 const doesCardIdExist = (req, res, next) => {
-  // const { _id } = req.user;
   const { cardId } = req.params;
 
   Card.findById(cardId)
-    .orFail(new NotFoundError('Карточка не найдена'))
+    .orFail(next(new NotFoundError('Карточка не найдена')))
     .then(() => {
       next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      if (err.name === 'NotFound') {
-        res.status(NOT_FOUND).send({ message: err.message });
-        return;
-      }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
 //-------------------
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { _id } = req.user;
   const { name, link } = req.body;
 
@@ -43,46 +36,52 @@ const createCard = (req, res) => {
     .then((card) => res.status(CREATED).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((card) => res.status(OK).send(card))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+    .catch((err) => next(err.message));
 };
 
-const deleteCardByID = (req, res) => {
+const deleteCardByID = (req, res, next) => {
   // перед deleteCardByID проверяется мидлвэр doesCardIdExist
   const { cardId } = req.params;
+  const { _id } = req.user;
 
   Card.findByIdAndRemove(cardId)
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+    .then((card) => {
+      if (card.owner.toString() === _id) {
+        card.deleteOne(card)
+          .then(() => res.send({ data: card }))
+          .catch(next);
+      } else next(new ForbbidenError('Чужую карточку нельзя удалить'));
+    })
+    .catch((err) => next(err.message));
 };
 
-const putCardLike = (req, res) => {
+const putCardLike = (req, res, next) => {
   // перед putCardLike проверяется мидлвэр doesCardIdExist
   const { cardId } = req.params;
   const { _id } = req.user;
 
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true, runValidators: true })
     .then((card) => res.status(OK).send({ data: card }))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+    .catch((err) => next(err.message));
 };
 
-const deleteCardLike = (req, res) => {
+const deleteCardLike = (req, res, next) => {
   // перед deleteCardLike проверяется мидлвэр doesCardIdExist
   const { cardId } = req.params;
   const { _id } = req.user;
 
   Card.findByIdAndUpdate(cardId, { $pull: { likes: _id } }, { new: true, runValidators: true })
     .then((card) => res.status(OK).send({ data: card }))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+    .catch((err) => next(err.message));
 };
 
 module.exports = {

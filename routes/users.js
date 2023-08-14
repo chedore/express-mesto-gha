@@ -1,28 +1,32 @@
 const router = require('express').Router();
+const {
+  validateUserId,
+  validateUserProfile,
+  validateUserAvatar,
+} = require('../middlewares/validation');
 
 const {
   doesUserIdExist,
   doesMeExist,
   getUsers,
-  createUser,
   getUserByID,
+  getUserProfile,
   updateUserProfile,
   updateUserAvatar,
 } = require('../controllers/users');
 
-// создаём пользователя
-router.post('/', createUser);
-
 // возвращаем всех пользователя
 router.get('/', getUsers);
 
-// возвращает пользователя по идентификатору
-router.get('/:userId', doesUserIdExist, getUserByID);
-
+// возвращаем информацию о профиль
+router.get('/me', doesMeExist, getUserProfile);
 // обновляет профиль
-router.patch('/me', doesMeExist, updateUserProfile);
+router.patch('/me', validateUserProfile, doesMeExist, updateUserProfile);
+
+// возвращает пользователя по идентификатору
+router.get('/:userId', validateUserId, doesUserIdExist, getUserByID);
 
 // обновляет аватар
-router.patch('/me/avatar', doesMeExist, updateUserAvatar);
+router.patch('/me/avatar', validateUserAvatar, doesMeExist, updateUserAvatar);
 
 module.exports = router;

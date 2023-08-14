@@ -1,12 +1,18 @@
+/* eslint-disable object-curly-newline */
+/* eslint-disable import/no-extraneous-dependencies */
+
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+// eslint-disable-next-line import/order
+const jwt = require('jsonwebtoken');
 const {
   OK,
   CREATED,
-  BAD_REQUEST,
-  NOT_FOUND,
-  DEFAULT_ERROR,
+  CONFLICT,
 
   NotFoundError,
+  ValidateError,
+  BadUnAutorized,
 } = require('../errors/index');
 
 /* ----мидлвэр---- */
@@ -15,20 +21,15 @@ const doesUserIdExist = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .orFail(new NotFoundError('Пользователь не найден'))
+    .orFail(next(new NotFoundError('Пользователь не найден')))
     .then(() => {
       next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      if (err.name === 'NotFound') {
-        res.status(NOT_FOUND).send({ message: err.message });
-        return;
-      }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
@@ -37,37 +38,38 @@ const doesMeExist = (req, res, next) => {
   const { _id } = req.user;
 
   User.findById(_id)
-    .orFail(new NotFoundError('Пользователь не найден'))
+    .orFail(next(new NotFoundError('Пользователь не найден')))
     .then(() => {
       next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
 //-------------------
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: err.message }));
+    .catch((err) => next(err.message));
 };
 
-const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
-    .then((user) => res.status(CREATED).send({ data: user }))
+const createUser = (req, res, next) => {
+  const { name, about, avatar, email, password } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
+    .then((user) => res.status(CREATED).send({ _id: user._id, email: user.email }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
+      } else if (err.code === 11000) {
+        res.status(CONFLICT).send({ message: 'Данный email уже существует' });
       }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
@@ -78,23 +80,34 @@ const getUserByID = (req, res) => {
   User.findById(userId).then((user) => res.status(OK).send({ data: user }));
 };
 
-const updateUserProfile = (req, res) => {
+const getUserProfile = (req, res, next) => {
+  const { _id } = req.user;
+
+  User.findById(_id)
+    .then((user) => res.status(OK).send(user))
+    .catch((err) => next(err.message));
+};
+
+const updateUserProfile = (req, res, next) => {
   // перед updateUserProfile проверяется мидлвэр doesMeExist
   const { name, about } = req.body;
   const { _id } = req.user;
 
-  User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(
+    _id,
+    { name, about },
+    { new: true, runValidators: true },
+  )
     .then((user) => res.status(OK).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   // перед updateUserAvatar проверяется мидлвэр doesMeExist
   const { avatar } = req.body;
   const { _id } = req.user;
@@ -103,10 +116,22 @@ const updateUserAvatar = (req, res) => {
     .then((user) => res.status(OK).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: err.message });
-        return;
+        next(new ValidateError(err.message));
       }
-      res.status(DEFAULT_ERROR).send({ message: err.message });
+      next(err.message);
+    });
+};
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.status(OK).send({ token });
+    })
+    .catch((err) => {
+      next(new BadUnAutorized(err.message));
     });
 };
 
@@ -117,6 +142,8 @@ module.exports = {
   getUsers,
   createUser,
   getUserByID,
+  getUserProfile,
   updateUserProfile,
   updateUserAvatar,
+  login,
 };
