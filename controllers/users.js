@@ -152,6 +152,7 @@ const login = (req, res, next) => {
         .then((matched) => {
           if (matched) {
             const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+            res.cookie('jwt', token, { httpOnly: true, secure: true });
             res.status(OK).send({ token });
           } else {
             throw new BadUnAutorized('Пользователь не найден');

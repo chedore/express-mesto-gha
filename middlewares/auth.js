@@ -6,14 +6,23 @@ const {
 
 // eslint-disable-next-line consistent-return
 const auth = (req, res, next) => {
-  const { authorization } = req.headers;
+  // const { authorization } = req.headers;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  // if (!authorization || !authorization.startsWith('Bearer ')) {
+  //   next(new BadUnAutorized('Необходима авторизация'));
+  //   return;
+  // }
+
+  // const token = authorization.replace('Bearer ', '');
+
+  let token;
+  try {
+    token = req.cookies.jwt;
+  } catch (err) {
     next(new BadUnAutorized('Необходима авторизация'));
     return;
   }
 
-  const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {

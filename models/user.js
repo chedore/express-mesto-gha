@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 const mongoose = require('mongoose');
 const validator = require('validator');
-const bcrypt = require('bcryptjs');
+// const bcrypt = require('bcryptjs');
 
 // const {
 //   BadUnAutorized,
