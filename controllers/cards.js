@@ -22,6 +22,7 @@ const doesCardIdExist = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new ValidateError(err.message));
+        return;
       }
       next(err.message);
     });
@@ -37,6 +38,7 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidateError(err.message));
+        return;
       }
       next(err.message);
     });
@@ -53,7 +55,7 @@ const deleteCardByID = (req, res, next) => {
   const { cardId } = req.params;
   const { _id } = req.user;
 
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
     .then((card) => {
       if (card.owner.toString() === _id) {
         card.deleteOne(card)

@@ -28,6 +28,7 @@ const doesUserIdExist = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new ValidateError(err.message));
+        return;
       }
       next(err.message);
     });
@@ -45,6 +46,7 @@ const doesMeExist = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new ValidateError(err.message));
+        return;
       }
       next(err.message);
     });
@@ -67,8 +69,10 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidateError(err.message));
-      } else if (err.code === 11000) {
+        return;
+      } if (err.code === 11000) {
         res.status(CONFLICT).send({ message: 'Данный email уже существует' });
+        return;
       }
       next(err.message);
     });
@@ -103,6 +107,7 @@ const updateUserProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidateError(err.message));
+        return;
       }
       next(err.message);
     });
@@ -118,6 +123,7 @@ const updateUserAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidateError(err.message));
+        return;
       }
       next(err.message);
     });
