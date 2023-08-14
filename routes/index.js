@@ -1,5 +1,4 @@
 const router = require('express').Router();
-// eslint-disable-next-line import/no-extraneous-dependencies
 const { errors } = require('celebrate');
 const userRouters = require('./users');
 const cardRouters = require('./cards');
