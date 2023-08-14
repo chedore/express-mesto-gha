@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { celebrate, Joi } = require('celebrate');
 const {
-  BadUnAutorized,
+  BadRequestError,
 } = require('../errors/index');
 
 // eslint-disable-next-line no-useless-escape
@@ -48,8 +48,7 @@ const validateLogin = (req, res, next) => {
   const { error } = validation;
   if (!error) {
     next();
-  //} else { next(new BadUnAutorized('Неправильные почта или пароль')); }
-  } else { res.status(400).send({ message: 'Неправильные почта или пароль' }); }
+  } else { next(new BadRequestError('Ошибка валидации поймана при помощи Joi')); }
 };
 
 const validateUserId = celebrate({
