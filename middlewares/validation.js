@@ -1,5 +1,8 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { celebrate, Joi } = require('celebrate');
+const {
+  BadUnAutorized,
+} = require('../errors/index');
 
 // eslint-disable-next-line no-useless-escape
 const regex = /^(http|https):\/\/(?:www\.)?[a-zA-Z0-9._~\-:?#[\]@!$&'()*+,\/;=]{2,256}\.[a-zA-Z0-9.\/?#-]{2,}$/;
@@ -34,12 +37,19 @@ const validateCreateUser = celebrate({
   }),
 });
 
-const validateLogin = celebrate({
-  body: Joi.object().keys({
+const validateLogin = (req, res, next) => {
+  const { body } = req;
+  const schema = Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-  }),
-});
+  });
+
+  const validation = schema.validate(body);
+  const { error } = validation;
+  if (!error) {
+    next();
+  } else { next(new BadUnAutorized('Неправильные почта или пароль')); }
+};
 
 const validateUserId = celebrate({
   params: Joi.object().keys({
