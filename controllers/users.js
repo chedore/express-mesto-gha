@@ -12,7 +12,7 @@ const {
 
   NotFoundError,
   ValidateError,
-  BadUnAutorized,
+  // BadUnAutorized,
 } = require('../errors/index');
 
 /* ----мидлвэр---- */

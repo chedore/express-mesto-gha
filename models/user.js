@@ -53,7 +53,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
         if (matched) {
           return user;
         }
-        throw new BadUnAutorized('Неправильные почта или пароль');
+        // throw new BadUnAutorized('Неправильные почта или пароль');
       }));
 };
 module.exports = mongoose.model('user', userSchema);
