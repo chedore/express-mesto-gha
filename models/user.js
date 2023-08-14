@@ -1,11 +1,11 @@
 /* eslint-disable consistent-return */
 const mongoose = require('mongoose');
 const validator = require('validator');
-// const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 
-// const {
-//   BadUnAutorized,
-// } = require('../errors/index');
+const {
+  BadUnAutorized,
+} = require('../errors/index');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -44,16 +44,16 @@ const userSchema = new mongoose.Schema({
   },
 }, { versionKey: false });
 
-// userSchema.statics.findUserByCredentials = function (email, password) {
-//   return this.findOne({ email })
-//     .select('+password')
-//     .orFail(() => new BadUnAutorized('Неправильные почта или пароль'))
-//     .then((user) => bcrypt.compare(password, user.password)
-//       .then((matched) => {
-//         if (!matched) {
-//           throw new BadUnAutorized('Неправильные почта или пароль');
-//         }
-//         return user;
-//       }));
-// };
+userSchema.statics.findUserByCredentials = function (email, password) {
+  return this.findOne({ email })
+    .select('+password')
+    .orFail(() => new BadUnAutorized('Неправильные почта или пароль'))
+    .then((user) => bcrypt.compare(password, user.password)
+      .then((matched) => {
+        if (matched) {
+          return user;
+        }
+        throw new BadUnAutorized('Неправильные почта или пароль');
+      }));
+};
 module.exports = mongoose.model('user', userSchema);

@@ -129,39 +129,37 @@ const updateUserAvatar = (req, res, next) => {
     });
 };
 
-// const login = (req, res, next) => {
-//   const { email, password } = req.body;
-
-//   User.findUserByCredentials(email, password)
-//     .then((user) => {
-//       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-//       res.status(OK).send({ token });
-//     })
-//     .catch((err) => {
-//       next(new BadUnAutorized(err.message));
-//     });
-// };
-
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findOne({ email })
-    .select('+password')
-    .orFail(() => new BadUnAutorized('Пользователь не найден'))
+
+  User.findUserByCredentials(email, password)
     .then((user) => {
-      bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (matched) {
-            const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-            res.cookie('jwt', token, { httpOnly: true, secure: true });
-            res.status(OK).send({ token });
-          } else {
-            throw new BadUnAutorized('Пользователь не найден');
-          }
-        })
-        .catch(next);
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.cookie('jwt', token, { httpOnly: true, secure: true });
+      res.status(OK).send({ token });
     })
     .catch(next);
 };
+
+// const login = (req, res, next) => {
+//   const { email, password } = req.body;
+//   User.findOne({ email })
+//     .select('+password')
+//     // .orFail(() => new BadUnAutorized('Пользователь не найден'))
+//     .then((user) => {
+//       bcrypt.compare(password, user.password)
+//         .then((matched) => {
+//           if (matched) {
+//             const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+//             res.cookie('jwt', token, { httpOnly: true, secure: true });
+//             res.status(OK).send({ token });
+//           } else {
+//             throw new BadUnAutorized('Пользователь не найден');
+//           }
+//         });
+//     })
+//     .catch(next);
+// };
 
 module.exports = {
   doesUserIdExist,
