@@ -12,7 +12,7 @@ const {
 
   NotFoundError,
   ValidateError,
-  BadUnAutorized,
+  // BadUnAutorized,
 } = require('../errors/index');
 
 /* ----мидлвэр---- */
@@ -21,15 +21,16 @@ const doesUserIdExist = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .orFail(next(new NotFoundError('Пользователь не найден')))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then(() => {
       next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new ValidateError(err.message));
+        return;
       }
-      next(err.message);
+      next(err);
     });
 };
 
@@ -38,15 +39,16 @@ const doesMeExist = (req, res, next) => {
   const { _id } = req.user;
 
   User.findById(_id)
-    .orFail(next(new NotFoundError('Пользователь не найден')))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then(() => {
       next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new ValidateError(err.message));
+        return;
       }
-      next(err.message);
+      next(err);
     });
 };
 
@@ -54,7 +56,7 @@ const doesMeExist = (req, res, next) => {
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
-    .catch((err) => next(err.message));
+    .catch((err) => next(err));
 };
 
 const createUser = (req, res, next) => {
@@ -67,10 +69,12 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidateError(err.message));
-      } else if (err.code === 11000) {
+        return;
+      } if (err.code === 11000) {
         res.status(CONFLICT).send({ message: 'Данный email уже существует' });
+        return;
       }
-      next(err.message);
+      next(err);
     });
 };
 
@@ -83,10 +87,11 @@ const getUserByID = (req, res) => {
 
 const getUserProfile = (req, res, next) => {
   const { _id } = req.user;
+  console.log(_id);
 
   User.findById(_id)
     .then((user) => res.status(OK).send(user))
-    .catch((err) => next(err.message));
+    .catch((err) => next(err));
 };
 
 const updateUserProfile = (req, res, next) => {
@@ -103,8 +108,9 @@ const updateUserProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidateError(err.message));
+        return;
       }
-      next(err.message);
+      next(err);
     });
 };
 
@@ -118,8 +124,9 @@ const updateUserAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidateError(err.message));
+        return;
       }
-      next(err.message);
+      next(err);
     });
 };
 
@@ -132,7 +139,7 @@ const login = (req, res, next) => {
       res.status(OK).send({ token });
     })
     .catch((err) => {
-      next(new BadUnAutorized(err.message));
+      next(err);
     });
 };
 
